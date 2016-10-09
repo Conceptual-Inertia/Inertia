@@ -11,17 +11,18 @@
  *
  * INSTRUCTION         |         DESCRIPTION
  * ====================+===========================
- * add                 |           Integer Addition
- * sub                 |           Integer Division
- * mul                 |     Integer Multiplication
+ * add                 |           Addition
+ * sub                 |           Division
+ * mul                 |           Multiplication
  *
- * lt                  |          Integer Less Than
- * eq                  |          Integer Equal  to
+ * lt                  |           Less Than
+ * eq                  |           Equal to
  *
- * #                   |          Constant
- * R                   |          Register Address
- * @                   |          Memory Adddress
+ * #                   |           Constant
+ * R                   |           Register Address
+ * @                   |           Memory Adddress
  *
+ * not                 |           bitwise not
  * and                 |           Bitwise and
  * or                  |           Bitwise or
  * shiftl              |           Shift left
