@@ -9,12 +9,8 @@
     load R0 #10
     load R1 #20
 
-    call f()
+    add R0 R0 R1
     print R1
     halt
-
-.def f: args=2, locals=1    ;  int f(x, y)
-    add R0 R0 R1
-    ret
 
 ; END OF FILE
