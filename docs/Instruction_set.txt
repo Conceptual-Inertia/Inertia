@@ -1,0 +1,52 @@
+/*
+ *
+ * GENERALLY NOT FANNGGOVITCH STANDARD BYTECODE FORMAT - .gnf files
+ * 
+ * Created by Tyler Liu on 2016/09/23.
+ * Copyright © 2016 Tyler Liu. All rights reserved.
+ *
+ * PUBLISHED UNDER THE GNU GENERAL PUBLIC LICENSE v3.0.
+ *
+ * instruction set for the Conceptum & Inertia VM
+ *
+ * INSTRUCTION         |         DESCRIPTION
+ * ====================+===========================
+ * add                 |           Integer Addition
+ * sub                 |           Integer Division
+ * mul                 |     Integer Multiplication
+ *
+ * lt                  |          Integer Less Than
+ * eq                  |          Integer Equal  to
+ *
+ * #                   |          Constant
+ * R                   |          Register Address
+ * @                   |          Memory Adddress
+ *
+ * and                 |           Bitwise and
+ * or                  |           Bitwise or
+ * shiftl              |           Shift left
+ * shiftr              |           
+ *
+ * ============= General Instructions ==============
+ * call f()            |           Call function f()
+ * ret                 |           return a value
+ *
+ * br a
+ * brt a               |           Branch to a
+ * brf a
+ *
+ * load i
+ * store i
+ *
+ * print
+ *
+ * struct n
+ *
+ * null               | The null value
+ *
+ *
+ * halt
+ *
+ *
+ *
+ */
