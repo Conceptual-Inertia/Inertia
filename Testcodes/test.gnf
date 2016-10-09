@@ -1,0 +1,20 @@
+;
+; test.gnf
+; DUMMY TEST BYTECODE
+; Created by Tyler on 2016/09/23.
+; Copyright © 2016 Tyler Liu. All rights reserved.
+
+.def main: args=0, locals=0
+; print f(10,20)
+    load R0 #10
+    load R1 #20
+
+    call f()
+    print
+    halt
+
+.def f: args=2, locals=1    ;  int f(x, y)
+    add R0 R0 R1
+    ret
+
+; END OF FILE
