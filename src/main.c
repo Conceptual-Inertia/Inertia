@@ -37,9 +37,6 @@ unsigned memory [ NUM_MEMS ];
 unsigned long program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
 unsigned cons[3];
 
-/* program counter */
-int pc = 0;
-
 /* fetch the next word from the program */
 long fetch() {
     return program[pc++];
@@ -197,12 +194,13 @@ void showRegs()
     printf( "\n" );
 }
 
-void run()
+void run(int pc)
 {
+    int running = 1;
     while( running )
     {
         showRegs();
-        int instr = fetch();
+        long instr = fetch();
         decode( instr );
         eval();
     }
