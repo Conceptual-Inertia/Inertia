@@ -182,7 +182,7 @@ void eval()
         case INERTIA_BRANCH:
             /* halt if -1 */
             //todo others
-            if (*get_add(reg1) == 0) running = 0;
+            if (*get_add(reg1) == ~0) running = 0;
             break;
     }
 }
