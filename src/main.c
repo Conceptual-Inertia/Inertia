@@ -1,4 +1,4 @@
-﻿//
+//
 //  main.c
 //  Inertia
 //
@@ -27,13 +27,13 @@
 #define INERTIA_PRINT 0xA // Print to stdout
 #define INERTIA_LOAD 0xB // Load value
 #define INERTIA_GOTO 0xC //goto
-#define INERTIA_IF 0xD //if
+#define INERTIA_IF 0xD //if reg1 = false, skip to reg2
 #define INERTIA_RETURN 0xE //return
 
 
 unsigned regs[ NUM_REGS ];
 unsigned memory [ NUM_MEMS ];
-unsigned program[] = { 0x66800000, 0x00000000, 0x00000007, 0x00000008, 0xA4000000, 0x00000000, 0xE0000000, 0x00000000 };
+unsigned program[] = { 0xDA400000, 0x00000000, 0x00000001, 0x00000006, 0xA4000000, 0x00000000, 0xE0000000, 0x00000000 };
 unsigned cons[3];
 
 /* fetch the next word from the program */
@@ -48,7 +48,6 @@ unsigned instrNum = 0;
 int reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
 int reg2     = 0;
 int reg3     = 0;
-int imm      = 0;
 
 /* fetch and decode a word */
 void decode(int *pc)  {
@@ -56,7 +55,7 @@ void decode(int *pc)  {
     unsigned instr = fetch(pc);
     instrNum = instr >> 28;
     //printf("%u", instr >> 28);
-
+    
     reg1 = (instr >> 26) & 3;//0 as memory, 1 as register, 2 as const
     reg2 = (instr >> 24) & 3;
     reg3 = (instr >> 22) & 3;
@@ -133,7 +132,7 @@ void eval(int *running, int *pc)
 {
     switch( instrNum )
     {
-        
+            
         case INERTIA_ADD:
             /* add */
             ( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );
@@ -179,11 +178,11 @@ void eval(int *running, int *pc)
         case INERTIA_PRINT:
             printf("%d\n", ( *get_add(1) ));
             break;
-	case INERTIA_GOTO:
+        case INERTIA_GOTO:
             *pc = ( *get_add(1) );
             break;
         case INERTIA_IF:
-            if (( *get_add(1) ) != 0) *pc = ( *get_add(2) );
+            if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );
             break;
         case INERTIA_RETURN:
             //printf("returning");
@@ -202,6 +201,7 @@ void showRegs()
     printf( "\n" );
 }
 
+// run with program counter
 void run(int pc)
 {
     int running = 1;
