@@ -7,7 +7,7 @@
  *
  * PUBLISHED UNDER THE GNU GENERAL PUBLIC LICENSE v3.0.
  *
- * instruction set for the Conceptum & Inertia VM
+ * instruction set for the Inertia VM
  *
  * INSTRUCTION         |         DESCRIPTION
  * ====================+===========================
