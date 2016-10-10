@@ -1,4 +1,4 @@
-//
+﻿//
 //  main.c
 //  Inertia
 //
@@ -12,24 +12,23 @@
 
 #define NUM_MEMS 65536
 
-#define INERTIA_ADD 0x0 // Integer Addition
-#define INERTIA_DIV 0x1 // Integer Division
-#define INERTIA_MUL 0x2 // Integer Multiplication
+#define INERTIA_ADD 0x0 // Addition
+#define INERTIA_DIV 0x1 // Division
+#define INERTIA_MUL 0x2 // Multiplication
 
-#define INERTIA_LTN 0x3 // Integer Less Than
-#define INERTIA_EQL 0x4 // Integer Equal To
+#define INERTIA_LTN 0x3 // Less Than
+#define INERTIA_EQL 0x4 // Equal To
 #define INERTIA_AND 0x5 // Bitwise AND
 #define INERTIA_NOT 0x6 // Bitwise NOT
 #define INERTIA_OR 0x7 //  Bitwise OR
 #define INERTIA_SHIFTL 0x8 //Bitwise SHIFTL
 #define INERTIA_SHIFTR 0x9 //Bitwise SHIFTR
 
-#define INERTIA_PROCEDURE 0xA // Initialize Concept Procedure OUTPUT
-#define INERTIA_PRINT 0xB // Print to stdout
-#define INERTIA_LOAD 0xC // Load value
-#define INERTIA_BRANCH 0xD //branch / goto
-#define INERTIA_IF 0xE //branch / if
-#define INERTIA_RETURN 0xF //return
+#define INERTIA_PRINT 0xA // Print to stdout
+#define INERTIA_LOAD 0xB // Load value
+#define INERTIA_GOTO 0xC //goto
+#define INERTIA_IF 0xD //if
+#define INERTIA_RETURN 0xE //return
 
 
 unsigned regs[ NUM_REGS ];
@@ -49,9 +48,9 @@ int reg2     = 0;
 int reg3     = 0;
 int imm      = 0;
 
-/* decode a word */
-void decode( long instr , int *pc)  {
-    
+/* fetch and decode a word */
+void decode(int *pc)  {
+    long instr = fetch(*pc);
     instrNum = instr >> 60;
     reg1 = (instr >> 58) & 3;//0 as memory, 1 as register, 2 as const
     reg2 = (instr >> 56) & 3;
@@ -122,11 +121,8 @@ unsigned int* get_add(int i ){
     return 0;
 }
 
-/* the VM runs until this flag becomes 0 */
-int running = 1;
-
 /* evaluate the last decoded instruction */
-void eval(int *running)
+void eval(int *running, int *pc)
 {
     switch( instrNum )
     {
@@ -175,16 +171,20 @@ void eval(int *running)
             break;
         case INERTIA_PRINT:
             printf("%d\n", *get_add(reg1));
-        
-        case INERTIA_BRANCH:
-            /* halt if -1 */
-            //todo others
-            if (*get_add(reg1) == ~0) running = 0;
+            break;
+	case INERTIA_GOTO:
+            *pc = *get_add(reg1);
+            break;
+        case INERTIA_IF:
+            if (*get_add(reg1) != 0) *pc = *get_add(reg2);
+            break;
+        case INERTIA_RETURN:
+            *running = 0;
             break;
     }
 }
 
-/* display all registers as 8-digit hexadecimal words */
+/* display all registers as 4-digit hexadecimal words */
 void showRegs()
 {
     int i;
@@ -199,16 +199,13 @@ void run(int pc)
     int running = 1;
     while( running )
     {
-        showRegs();
-        long instr = fetch();
-        decode( instr );
-        eval();
+        decode( &pc );
+        eval( &running );
     }
-    showRegs();
 }
 
 int main( int argc, const char * argv[] )
 {
-    run();
+    run(0);
     return 0;
 }
