@@ -38,8 +38,8 @@ unsigned long program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
 unsigned cons[3];
 
 /* fetch the next word from the program */
-long fetch() {
-    return program[pc++];
+long fetch(int *pc) {
+    return program[*pc++];
 }
 
 /* instruction fields */
@@ -50,7 +50,7 @@ int reg3     = 0;
 int imm      = 0;
 
 /* decode a word */
-void decode( long instr )  {
+void decode( long instr , int *pc)  {
     
     instrNum = instr >> 60;
     reg1 = (instr >> 58) & 3;//0 as memory, 1 as register, 2 as const
@@ -88,15 +88,15 @@ void decode( long instr )  {
     }
     
     if (reg1 == -1){
-        cons[0] = (int) fetch();
+        cons[0] = (int) fetch(*pc);
     }
     
     if (reg2 == -1){
-        cons[1] = (int) fetch();
+        cons[1] = (int) fetch(*pc);
     }
     
     if (reg3 == -1){
-        cons[2] = (int) fetch();
+        cons[2] = (int) fetch(*pc);
     }
 }
 
@@ -126,7 +126,7 @@ unsigned int* get_add(int i ){
 int running = 1;
 
 /* evaluate the last decoded instruction */
-void eval()
+void eval(int *running)
 {
     switch( instrNum )
     {
