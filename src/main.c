@@ -54,96 +54,40 @@ int imm      = 0;
 
 /* decode a word */
 void decode( long instr )  {
-    int dcut = 0;
     
     instrNum = instr >> 60;
-    instr = instr << 4;
-    if (((instr >>  63) & 1 )== 0) {
-        reg1 = 4;
-        instr = instr << 1;
-        dcut ++;
-    }//memory
-    else if (((instr >> 62) & 3) == 2) {
-        reg1 = 1;//register
-        instr = instr << 2;
-        dcut += 2;
-    }
-    else {
-        reg1 = -1;
-        instr = instr << 2;
-        dcut += 2;
-    }
-    
-    if (((instr >>  63) & 1 )== 0) {
-        reg2 = 4;
-        instr = instr << 1;
-        dcut ++;
-    }//memory
-    else if (((instr >> 62) & 3) == 2) {
-        reg2 = 1;//register
-        instr = instr << 2;
-        dcut += 2;
-    }
-    else {
-        reg2 = -1;
-        instr = instr << 2;
-        dcut += 2;
-    }
-    
-    if (((instr >>  63) & 1 )== 0) {
-        reg3 = 4;
-        instr = instr << 1;
-        dcut ++;
-    }//memory
-    else if (((instr >> 62) & 3) == 2) {
-        reg3 = 1;//register
-        instr = instr << 2;
-        dcut += 2;
-    }
-    else {
-        reg3 = -1;
-        instr = instr << 2;
-        dcut += 2;
-    }
+    reg1 = (instr >> 58) & 3;//0 as memory, 1 as register, 2 as const
+    reg2 = (instr >> 56) & 3;
+    reg3 = (instr >> 54) & 3;
+    if (reg1 == 0) reg1 = 4;
+    if (reg2 == 0) reg2 = 4;
+    if (reg3 == 0) reg3 = 4;
+    if (reg1 == 2) reg1 = -1;
+    if (reg2 == 2) reg2 = -1;
+    if (reg3 == 2) reg3 = -1;
     
     if (reg1 == 1) {
-        reg1 = (instr >> 62);
-        instr = instr << 2;
-        dcut += 2;
+        reg1 = (instr >> 52) & 3;
     }
     
     if (reg2 == 1) {
-        reg2 = (instr >> 62);
-        instr = instr << 2;
-        dcut += 2;
+        reg2 = (instr >> 50) & 3;
     }
     
     if (reg3 == 1) {
-        reg3 = (instr >> 62);
-        instr = instr << 2;
-        dcut += 2;
-    }
-    
-    if (dcut == 3){
-        instr = instr << 1;
-    }
-    if (dcut > 4 && dcut < 12){
-        instr = instr << (12 - dcut);
+        reg3 = (instr >> 48) & 3;
     }
     
     if (reg1 == 4){
-        reg1 = (instr >> 56) + 4;
-        instr = instr << 16;
+        reg1 = ((instr >> 32) & 65535) + 4;
     }
     
     if (reg2 == 4){
-        reg2 = (instr >> 56) + 4;
-        instr = instr << 16;
+        reg2 = ((instr >> 16) & 65535) + 4;
     }
     
     if (reg3 == 4){
-        reg3 = (instr >> 56) + 4;
-        instr = instr << 16;
+        reg3 = ((instr >> 0) & 65535) + 4;
     }
     
     if (reg1 == -1){
