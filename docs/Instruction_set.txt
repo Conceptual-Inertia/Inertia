@@ -49,7 +49,7 @@
   #define NUM_REGS 4
 #endif
 
-#ifnedf NUM_MEMS
+#ifndef NUM_MEMS
   #define NUM_MEMS 100
 #endif
 
