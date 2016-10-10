@@ -16,8 +16,8 @@
 #define INERTIA_DIV 0x1 // Integer Division
 #define INERTIA_MUL 0x2 // Integer Multiplication
 
-#define INERTIA_ILT 0x3 // Integer Less Than
-#define INERTIA_IEQ 0x4 // Integer Equal To
+#define INERTIA_LTN 0x3 // Integer Less Than
+#define INERTIA_EQL 0x4 // Integer Equal To
 #define INERTIA_AND 0x5 // Bitwise AND
 #define INERTIA_NOT 0x6 // Bitwise NOT
 #define INERTIA_OR 0x7 //  Bitwise OR
@@ -35,7 +35,7 @@
 unsigned regs[ NUM_REGS ];
 unsigned memory [ NUM_MEMS ];
 unsigned long program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
-int cons[3];
+unsigned cons[3];
 
 /* program counter */
 int pc = 0;
@@ -103,6 +103,28 @@ void decode( long instr )  {
     }
 }
 
+//get memory address
+unsigned int* get_add(int i ){
+    switch(i){
+        case 1:
+            if (reg1 == -1) return &cons[0];
+            if (reg1 >= 0 && reg1 < 4) return &regs[reg1];
+            if (reg1 >= 4) return &memory[reg1 - 4];
+            break;
+        case 2:
+            if (reg2 == -1) return &cons[1];
+            if (reg2 >= 0 && reg2 < 4) return &regs[reg2];
+            if (reg2 >= 4) return &memory[reg2 - 4];
+            break;
+        case 3:
+            if (reg3 == -1) return &cons[2];
+            if (reg3 >= 0 && reg1 < 4) return &regs[reg3];
+            if (reg3 >= 4) return &memory[reg3 - 4];
+            break;
+    }
+    return 0;
+}
+
 /* the VM runs until this flag becomes 0 */
 int running = 1;
 
@@ -111,20 +133,56 @@ void eval()
 {
     switch( instrNum )
     {
-        case 0:
-            /* halt */
-            printf( "halt\n" );
-            running = 0;
-            break;
-        case 1:
-            /* loadi */
-            printf( "loadi r%d #%d\n", reg1, imm );
-            regs[ reg1 ] = imm;
-            break;
-        case 2:
+        
+        case INERTIA_ADD:
             /* add */
-            printf( "add r%d r%d r%d\n", reg1, reg2, reg3 );
-            regs[ reg1 ] = regs[ reg2 ] + regs[ reg3 ];
+            *get_add(reg1) = *get_add(reg2) + *get_add(reg3);
+            break;
+        case INERTIA_DIV:
+            /* divide */
+            *get_add(reg1) = *get_add(reg2) / *get_add(reg3);
+            break;
+        case INERTIA_MUL:
+            /* multiply */
+            *get_add(reg1) = *get_add(reg2) * *get_add(reg3);
+            break;
+            
+        case INERTIA_LTN :
+            //Less Than
+            if (*get_add(reg2) < *get_add(reg3)) *get_add(reg1) = ~0;
+            else *get_add(reg1) = 0;
+            break;
+        case INERTIA_EQL :
+            //Less Than
+            if (*get_add(reg2) == *get_add(reg3)) *get_add(reg1) = ~0;
+            else *get_add(reg1) = 0;
+            break;
+        case INERTIA_AND:
+            *get_add(reg1) = *get_add(reg2) & *get_add(reg3);
+            break;
+        case INERTIA_OR:
+            *get_add(reg1) = *get_add(reg2) | *get_add(reg3);
+            break;
+        case INERTIA_NOT:
+            *get_add(reg1) = ~*get_add(reg2);
+            break;
+        case INERTIA_SHIFTL:
+            *get_add(reg1) = *get_add(reg2) << *get_add(reg3);
+            break;
+        case INERTIA_SHIFTR:
+            *get_add(reg1) = *get_add(reg2) >> *get_add(reg3);
+            break;
+            
+        case INERTIA_LOAD:
+            *get_add(reg1) = *get_add(reg2);
+            break;
+        case INERTIA_PRINT:
+            printf("%d\n", *get_add(reg1));
+        
+        case INERTIA_BRANCH:
+            /* halt if -1 */
+            //todo others
+            if (*get_add(reg1) == 0) running = 0;
             break;
     }
 }
