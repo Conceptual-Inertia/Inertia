@@ -10,7 +10,7 @@
 
 #define NUM_REGS 4
 
-#define NUM_MEMS 256
+#define NUM_MEMS 65536
 
 #define INERTIA_ADD 0x0 // Integer Addition
 #define INERTIA_DIV 0x1 // Integer Division
@@ -34,14 +34,14 @@
 
 unsigned regs[ NUM_REGS ];
 unsigned memory [ NUM_MEMS ];
-unsigned program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
+unsigned long program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
 int cons[3];
 
 /* program counter */
 int pc = 0;
 
 /* fetch the next word from the program */
-int fetch() {
+long fetch() {
     return program[pc++];
 }
 
@@ -53,17 +53,17 @@ int reg3     = 0;
 int imm      = 0;
 
 /* decode a word */
-void decode( int instr )  {
+void decode( long instr )  {
     int dcut = 0;
     
-    instrNum = instr >> 28;
+    instrNum = instr >> 60;
     instr = instr << 4;
-    if (((instr >>  31) & 1 )== 0) {
+    if (((instr >>  63) & 1 )== 0) {
         reg1 = 4;
         instr = instr << 1;
         dcut ++;
     }//memory
-    else if (((instr >> 30) & 3) == 2) {
+    else if (((instr >> 62) & 3) == 2) {
         reg1 = 1;//register
         instr = instr << 2;
         dcut += 2;
@@ -74,12 +74,12 @@ void decode( int instr )  {
         dcut += 2;
     }
     
-    if (((instr >>  31) & 1 )== 0) {
+    if (((instr >>  63) & 1 )== 0) {
         reg2 = 4;
         instr = instr << 1;
         dcut ++;
     }//memory
-    else if (((instr >> 30) & 3) == 2) {
+    else if (((instr >> 62) & 3) == 2) {
         reg2 = 1;//register
         instr = instr << 2;
         dcut += 2;
@@ -90,12 +90,12 @@ void decode( int instr )  {
         dcut += 2;
     }
     
-    if (((instr >>  31) & 1 )== 0) {
+    if (((instr >>  63) & 1 )== 0) {
         reg3 = 4;
         instr = instr << 1;
         dcut ++;
     }//memory
-    else if (((instr >> 30) & 3) == 2) {
+    else if (((instr >> 62) & 3) == 2) {
         reg3 = 1;//register
         instr = instr << 2;
         dcut += 2;
@@ -107,19 +107,19 @@ void decode( int instr )  {
     }
     
     if (reg1 == 1) {
-        reg1 = (instr >> 30);
+        reg1 = (instr >> 62);
         instr = instr << 2;
         dcut += 2;
     }
     
     if (reg2 == 1) {
-        reg2 = (instr >> 30);
+        reg2 = (instr >> 62);
         instr = instr << 2;
         dcut += 2;
     }
     
     if (reg3 == 1) {
-        reg3 = (instr >> 30);
+        reg3 = (instr >> 62);
         instr = instr << 2;
         dcut += 2;
     }
@@ -132,30 +132,30 @@ void decode( int instr )  {
     }
     
     if (reg1 == 4){
-        reg1 = (instr >> 24) + 4;
-        instr = instr << 8;
+        reg1 = (instr >> 56) + 4;
+        instr = instr << 16;
     }
     
     if (reg2 == 4){
-        reg2 = (instr >> 24) + 4;
-        instr = instr << 8;
+        reg2 = (instr >> 56) + 4;
+        instr = instr << 16;
     }
     
     if (reg3 == 4){
-        reg3 = (instr >> 24) + 4;
-        instr = instr << 8;
+        reg3 = (instr >> 56) + 4;
+        instr = instr << 16;
     }
     
     if (reg1 == -1){
-        cons[0] = fetch();
+        cons[0] = (int) fetch();
     }
     
     if (reg2 == -1){
-        cons[1] = fetch();
+        cons[1] = (int) fetch();
     }
     
     if (reg3 == -1){
-        cons[2] = fetch();
+        cons[2] = (int) fetch();
     }
 }
 
