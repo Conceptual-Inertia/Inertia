@@ -33,7 +33,7 @@
 
 unsigned regs[ NUM_REGS ];
 unsigned memory [ NUM_MEMS ];
-unsigned long program[] = { 0x1064, 0x11C8, 0x2201, 0x0000 };
+unsigned long program[] = { 0x06800000, 0x00000007, 0x00000008, 0xA4000000, 0xE0000000 };
 unsigned cons[3];
 
 /* fetch the next word from the program */
