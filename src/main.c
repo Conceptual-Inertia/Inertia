@@ -7,6 +7,8 @@
 //
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define NUM_REGS 4
 
@@ -37,13 +39,13 @@ unsigned memory [ NUM_MEMS ];
 
 FILE *f;
 unsigned len_program;
-unsigned program[] = { 0xF8000000, 0x00000000, 0x00000005, 0xE0000000, 0x00000000 , 0xA8000000, 0x00000000, 0x0000000F, 0xE0000000, 0x00000000};
+unsigned *program;
 unsigned cons[3];
 
 /* fetch the next word from the program */
 unsigned fetch(unsigned *pc) {
     (*pc) ++;
-    printf("fetch %d\n", *pc - 1);
+    //printf("fetch %d\n", *pc - 1);
     return program[*pc - 1];
 }
 
@@ -230,16 +232,34 @@ void run()
     }
 }
 
+//read the char and convert to unsigned
+unsigned fgetu(){
+    return (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
+}
+
 int main( int argc, const char * argv[] )
 {
-    /*if (argc == 1) printf("Please enter file name");
+    
+    if (argc == 1) printf("Please enter file name");
     
     //read in file
-    f = fopen(strcat(argv[0],".gnf"), "r");
+    
+    f = fopen(argv[1], "r");
+    len_program = fgetu();
+    program = (unsigned *)malloc(len_program * sizeof(unsigned));
+    if(!program){
+        printf("Fail to allocate instruction array\n");
+        exit(1);
+    }
+    
+    for (int i = 0; i < len_program; i ++){
+        program[i] = fgetu();
+    }
     
     fclose(f);
-    */
+    
     //execute
     run();
+    free(program);
     return 0;
 }
