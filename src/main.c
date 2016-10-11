@@ -73,6 +73,7 @@ void decode(uint32_t *pc)  {
             reg1 = (instr >> 20) & 3;
             break;
         case 2:
+            reg1 = (uint32_t)~0;
             cons[0] = fetch(pc);
             break;
     }
@@ -85,6 +86,7 @@ void decode(uint32_t *pc)  {
             reg2 = (instr >> 18) & 3;
             break;
         case 2:
+            reg2 = (uint32_t)~0;
             cons[1] = fetch(pc);
             break;
     }
@@ -97,6 +99,7 @@ void decode(uint32_t *pc)  {
             reg3 = (instr >> 16) & 3;
             break;
         case 2:
+            reg3 = (uint32_t)~0;
             cons[2] = fetch(pc);
             break;
     }
@@ -191,6 +194,7 @@ void eval(int *running, uint32_t *pc)
             //run(*get_add(1))
             
             pc1 = *get_add(1) ;
+            //printf("calling %d", pc1);
             int running1 = 1;
             while( running1 )
             {
