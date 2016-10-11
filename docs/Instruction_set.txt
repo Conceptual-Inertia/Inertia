@@ -45,31 +45,27 @@
  *
  *
  */
-#ifndef NUM_REGS
-  #define NUM_REGS 4
-#endif
-
-#ifndef NUM_MEMS
-  #define NUM_MEMS 100
-#endif
 
 
+#define NUM_REGS 4
 
-#define INERTIA_ADD 0x0 // Integer Addition
-#define INERTIA_DIV 0x1 // Integer Division
-#define INERTIA_MUL 0x2 // Integer Multiplication
+#define NUM_MEMS 65536
 
-#define INERTIA_ILT 0x3 // Integer Less Than
-#define INERTIA_IEQ 0x4 // Integer Equal To
+#define INERTIA_ADD 0x0 // Addition
+#define INERTIA_DIV 0x1 // Division
+#define INERTIA_MUL 0x2 // Multiplication
+
+#define INERTIA_LTN 0x3 // Less Than
+#define INERTIA_EQL 0x4 // Equal To
 #define INERTIA_AND 0x5 // Bitwise AND
 #define INERTIA_NOT 0x6 // Bitwise NOT
 #define INERTIA_OR 0x7 //  Bitwise OR
 #define INERTIA_SHIFTL 0x8 //Bitwise SHIFTL
 #define INERTIA_SHIFTR 0x9 //Bitwise SHIFTR
 
-#define INERTIA_PROCEDURE 0xA // Initialize Concept Procedure OUTPUT
-#define INERTIA_PRINT 0xB // Print to stdout
-#define INERTIA_LOAD 0xC // Load value
-#define INERTIA_BRANCH 0xD //branch / goto
-#define INERTIA_IF 0xE //branch / if
-#define INERTIA_RETURN 0xF //return
+#define INERTIA_PRINT 0xA // Print to stdout
+#define INERTIA_LOAD 0xB // Load value
+#define INERTIA_GOTO 0xC //goto
+#define INERTIA_IF 0xD //if reg1 = false, skip to reg2
+#define INERTIA_RETURN 0xE //return
+#define INERTIA_CALL 0xF // call function
