@@ -1,4 +1,4 @@
-﻿//
+//
 //  main.c
 //  Inertia
 //
@@ -44,6 +44,10 @@ uint32_t cons[3];
 
 /* fetch the next word from the program */
 uint32_t fetch(uint32_t *pc) {
+    if (*pc >= len_program) {
+        printf("Instruction array out of bound\n");
+        exit(2);
+    }
     (*pc) ++;
     //printf("fetch %d\n", *pc - 1);
     return program[*pc - 1];
@@ -108,25 +112,24 @@ void decode(uint32_t *pc)  {
 
 //get memory address
 uint32_t* get_add(int i ){
-
-    switch(i){
-        case 1:
-            if (par1 == ~0) return &cons[0];
-            if (par1 < 4 ) return &regs[par1];
-            if (par1 >= 4 && par1 != ~0) return &memory[par1 - 4];
+    int32_t par = i == 1 ? par1 : ( i == 2 ? par2 : par3 );
+    switch(par){
+        case -1:
+            return &cons[0];
             break;
-        case 2:
-            if (par2 == ~0) return &cons[1];
-            if (par2 < 4) return &regs[par2];
-            if (par2 >= 4 && par2 != ~0) return &memory[par2 - 4];
+        case -2:
+            return &cons[1];
             break;
-        case 3:
-            if (par3 == ~0) return &cons[2];
-            if (par1 < 4) return &regs[par3];
-            if (par3 >= 4 && par2 != ~0) return &memory[par3 - 4];
+        case -3:
+            return &cons[2];
             break;
+        case 0 ... 3:
+            return &regs[par];
+            break;
+        default:
+            return &memory[par - 4];
+        
     }
-    return 0;
 }
 
 /* evaluate the last decoded instruction */
@@ -229,6 +232,16 @@ void run()
     }
 }
 
+static inline uint32_t fgetu(){
+    uint32_t a = (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8);
+    int b = fgetc(f);
+    if (b == EOF){
+        printf("Failed to read file\n");
+        exit(3);
+    }
+    return a + (uint32_t) b;
+}
+
 int main( int argc, const char * argv[] )
 {
     
@@ -237,7 +250,7 @@ int main( int argc, const char * argv[] )
     //read in file
     
     f = fopen(argv[1], "r");
-    len_program = (uint32_t)(fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
+    len_program = fgetu();
     program = (uint32_t *)malloc(len_program * sizeof(unsigned));
     if(!program){
         printf("Failed to allocate instruction array\n");
@@ -245,7 +258,7 @@ int main( int argc, const char * argv[] )
     }
     
     for (int i = 0; i < len_program; i ++){
-        program[i] = (uint32_t)(fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
+        program[i] = fgetu();
     }
     
     fclose(f);
