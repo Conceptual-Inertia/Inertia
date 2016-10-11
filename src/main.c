@@ -232,11 +232,6 @@ void run()
     }
 }
 
-//read the char and convert to unsigned
-uint32_t fgetu(){
-    return (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
-}
-
 int main( int argc, const char * argv[] )
 {
     
@@ -245,7 +240,7 @@ int main( int argc, const char * argv[] )
     //read in file
     
     f = fopen(argv[1], "r");
-    len_program = fgetu();
+    len_program = (uint32_t)(fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
     program = (unsigned *)malloc(len_program * sizeof(unsigned));
     if(!program){
         printf("Fail to allocate instruction array\n");
@@ -253,7 +248,7 @@ int main( int argc, const char * argv[] )
     }
     
     for (int i = 0; i < len_program; i ++){
-        program[i] = fgetu();
+        program[i] = (uint32_t)(fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
     }
     
     fclose(f);
