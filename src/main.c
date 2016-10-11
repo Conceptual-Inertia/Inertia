@@ -1,4 +1,4 @@
-//
+﻿//
 //  main.c
 //  Inertia
 //
@@ -29,7 +29,7 @@
 #define INERTIA_PRINT 0xA // Print to stdout
 #define INERTIA_LOAD 0xB // Load value
 #define INERTIA_GOTO 0xC //goto
-#define INERTIA_IF 0xD //if reg1 = false, skip to reg2
+#define INERTIA_IF 0xD //if par1 == false, skip to par2
 #define INERTIA_RETURN 0xE //return
 #define INERTIA_CALL 0xF // call function
 
@@ -51,9 +51,9 @@ uint32_t fetch(uint32_t *pc) {
 
 /* instruction fields */
 static uint32_t instrNum = 0;
-static uint32_t reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
-static uint32_t reg2     = 0;
-static uint32_t reg3     = 0;
+static int32_t par1     = 0;//-1 as const, 0-3 as register, >=4 as memory
+static int32_t par2     = 0;
+static int32_t par3     = 0;
 
 /* fetch and decode a word */
 void decode(uint32_t *pc)  {
@@ -65,41 +65,41 @@ void decode(uint32_t *pc)  {
     
     //0 as memory, 1 as register, 2 as const
     
-    switch ((instr >> 26) & 3) {//reg1
+    switch ((instr >> 26) & 3) {//par1
         case 0:
-            reg1 = (instr & 65535) + 4;
+            par1 = (instr & 65535) + 4;
             break;
         case 1:
-            reg1 = (instr >> 20) & 3;
+            par1 = (instr >> 20) & 3;
             break;
         case 2:
-            reg1 = (uint32_t)~0;
+            par1 = -1;
             cons[0] = fetch(pc);
             break;
     }
     
-    switch ((instr >> 24) & 3) {//reg2
+    switch ((instr >> 24) & 3) {//par2
         case 0:
-            reg2 = ((instr2 >> 16) & 65535) + 4;
+            par2 = ((instr2 >> 16) & 65535) + 4;
             break;
         case 1:
-            reg2 = (instr >> 18) & 3;
+            par2 = (instr >> 18) & 3;
             break;
         case 2:
-            reg2 = (uint32_t)~0;
+            par2 = -2;
             cons[1] = fetch(pc);
             break;
     }
     
-    switch ((instr >> 22) & 3) {//reg3
+    switch ((instr >> 22) & 3) {//par3
         case 0:
-            reg3 = (instr2 & 65535) + 4;
+            par3 = (instr2 & 65535) + 4;
             break;
         case 1:
-            reg3 = (instr >> 16) & 3;
+            par3 = (instr >> 16) & 3;
             break;
         case 2:
-            reg3 = (uint32_t)~0;
+            par3 = -3;
             cons[2] = fetch(pc);
             break;
     }
@@ -108,21 +108,22 @@ void decode(uint32_t *pc)  {
 
 //get memory address
 uint32_t* get_add(int i ){
+
     switch(i){
         case 1:
-            if (reg1 == ~0) return &cons[0];
-            if (reg1 < 4 ) return &regs[reg1];
-            if (reg1 >= 4 && reg1 != ~0) return &memory[reg1 - 4];
+            if (par1 == ~0) return &cons[0];
+            if (par1 < 4 ) return &regs[par1];
+            if (par1 >= 4 && par1 != ~0) return &memory[par1 - 4];
             break;
         case 2:
-            if (reg2 == ~0) return &cons[1];
-            if (reg2 < 4) return &regs[reg2];
-            if (reg2 >= 4 && reg2 != ~0) return &memory[reg2 - 4];
+            if (par2 == ~0) return &cons[1];
+            if (par2 < 4) return &regs[par2];
+            if (par2 >= 4 && par2 != ~0) return &memory[par2 - 4];
             break;
         case 3:
-            if (reg3 == ~0) return &cons[2];
-            if (reg1 < 4) return &regs[reg3];
-            if (reg3 >= 4 && reg2 != ~0) return &memory[reg3 - 4];
+            if (par3 == ~0) return &cons[2];
+            if (par1 < 4) return &regs[par3];
+            if (par3 >= 4 && par2 != ~0) return &memory[par3 - 4];
             break;
     }
     return 0;
