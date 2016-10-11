@@ -50,10 +50,10 @@ uint32_t fetch(uint32_t *pc) {
 }
 
 /* instruction fields */
-register uint32_t instrNum = 0;
-register uint32_t reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
-register uint32_t reg2     = 0;
-register uint32_t reg3     = 0;
+static uint32_t instrNum = 0;
+static uint32_t reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
+static uint32_t reg2     = 0;
+static uint32_t reg3     = 0;
 
 /* fetch and decode a word */
 void decode(uint32_t *pc)  {
