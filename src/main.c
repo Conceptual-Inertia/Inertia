@@ -59,56 +59,48 @@ static uint32_t reg3     = 0;
 void decode(uint32_t *pc)  {
     
     uint32_t instr = fetch(pc);
+    uint32_t instr2 = fetch(pc);
     instrNum = instr >> 28;
     //printf("%u", instr >> 28);
     
-    reg1 = (instr >> 26) & 3;//0 as memory, 1 as register, 2 as const
-    reg2 = (instr >> 24) & 3;
-    reg3 = (instr >> 22) & 3;
-    if (reg1 == 0) reg1 = 4;
-    if (reg2 == 0) reg2 = 4;
-    if (reg3 == 0) reg3 = 4;
-    if (reg1 == 2) reg1 = (uint32_t)~0;
-    if (reg2 == 2) reg2 = (uint32_t)~0;
-    if (reg3 == 2) reg3 = (uint32_t)~0; // Force to cast not0 to uint32_t
+    //0 as memory, 1 as register, 2 as const
     
-    
-    if (reg1 == 1) {
-        reg1 = (instr >> 20) & 3;
+    switch ((instr >> 26) & 3) {//reg1
+        case 0:
+            reg1 = (instr & 65535) + 4;
+            break;
+        case 1:
+            reg1 = (instr >> 20) & 3;
+            break;
+        case 2:
+            cons[0] = fetch(pc);
+            break;
     }
     
-    if (reg2 == 1) {
-        reg2 = (instr >> 18) & 3;
+    switch ((instr >> 24) & 3) {//reg2
+        case 0:
+            reg2 = ((instr2 >> 16) & 65535) + 4;
+            break;
+        case 1:
+            reg2 = (instr >> 18) & 3;
+            break;
+        case 2:
+            cons[1] = fetch(pc);
+            break;
     }
     
-    if (reg3 == 1) {
-        reg3 = (instr >> 16) & 3;
+    switch ((instr >> 22) & 3) {//reg3
+        case 0:
+            reg3 = (instr2 & 65535) + 4;
+            break;
+        case 1:
+            reg3 = (instr >> 16) & 3;
+            break;
+        case 2:
+            cons[2] = fetch(pc);
+            break;
     }
     
-    if (reg1 == 4){
-        reg1 = (instr & 65535) + 4;
-    }
-    
-    instr = fetch(pc);
-    if (reg2 == 4){
-        reg2 = ((instr >> 16) & 65535) + 4;
-    }
-    
-    if (reg3 == 4){
-        reg3 = (instr & 65535) + 4;
-    }
-    
-    if (reg1 == ~0){
-        cons[0] = fetch(pc);
-    }
-    
-    if (reg2 == ~0){
-        cons[1] = fetch(pc);
-    }
-    
-    if (reg3 == ~0){
-        cons[2] = fetch(pc);
-    }
 }
 
 //get memory address
@@ -139,7 +131,7 @@ void eval(int *running, uint32_t *pc)
     uint32_t pc1;
     switch( instrNum )
     {
-        
+            
         case INERTIA_ADD:
             /* add */
             ( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );
@@ -205,7 +197,7 @@ void eval(int *running, uint32_t *pc)
                 decode( &pc1 );
                 eval( &running1 , &pc1 );
             }
-
+            
             break;
     }
 }
