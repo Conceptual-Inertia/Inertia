@@ -29,15 +29,19 @@
 #define INERTIA_GOTO 0xC //goto
 #define INERTIA_IF 0xD //if reg1 = false, skip to reg2
 #define INERTIA_RETURN 0xE //return
+#define INERTIA_CALL 0xF // call function
 
 
 unsigned regs[ NUM_REGS ];
 unsigned memory [ NUM_MEMS ];
-unsigned program[] = { 0xDA400000, 0x00000000, 0x00000001, 0x00000006, 0xA4000000, 0x00000000, 0xE0000000, 0x00000000 };
+
+FILE *f;
+unsigned len_program;
+unsigned program[] = { 0xF8000000, 0x00000000, 0x00000005, 0xE0000000, 0x00000000 , 0xA8000000, 0x00000000, 0x0000000F, 0xE0000000, 0x00000000};
 unsigned cons[3];
 
 /* fetch the next word from the program */
-unsigned fetch(int *pc) {
+unsigned fetch(unsigned *pc) {
     (*pc) ++;
     printf("fetch %d\n", *pc - 1);
     return program[*pc - 1];
@@ -45,12 +49,12 @@ unsigned fetch(int *pc) {
 
 /* instruction fields */
 unsigned instrNum = 0;
-int reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
-int reg2     = 0;
-int reg3     = 0;
+unsigned reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
+unsigned reg2     = 0;
+unsigned reg3     = 0;
 
 /* fetch and decode a word */
-void decode(int *pc)  {
+void decode(unsigned *pc)  {
     
     unsigned instr = fetch(pc);
     instrNum = instr >> 28;
@@ -62,9 +66,9 @@ void decode(int *pc)  {
     if (reg1 == 0) reg1 = 4;
     if (reg2 == 0) reg2 = 4;
     if (reg3 == 0) reg3 = 4;
-    if (reg1 == 2) reg1 = -1;
-    if (reg2 == 2) reg2 = -1;
-    if (reg3 == 2) reg3 = -1;
+    if (reg1 == 2) reg1 = ~0;
+    if (reg2 == 2) reg2 = ~0;
+    if (reg3 == 2) reg3 = ~0;
     
     
     if (reg1 == 1) {
@@ -92,47 +96,48 @@ void decode(int *pc)  {
         reg3 = (instr & 65535) + 4;
     }
     
-    if (reg1 == -1){
+    if (reg1 == ~0){
         cons[0] = fetch(pc);
     }
     
-    if (reg2 == -1){
+    if (reg2 == ~0){
         cons[1] = fetch(pc);
     }
     
-    if (reg3 == -1){
+    if (reg3 == ~0){
         cons[2] = fetch(pc);
     }
 }
 
 //get memory address
-unsigned int* get_add(int i ){
+unsigned* get_add(int i ){
     switch(i){
         case 1:
-            if (reg1 == -1) return &cons[0];
-            if (reg1 >= 0 && reg1 < 4) return &regs[reg1];
-            if (reg1 >= 4) return &memory[reg1 - 4];
+            if (reg1 == ~0) return &cons[0];
+            if (reg1 < 4 ) return &regs[reg1];
+            if (reg1 >= 4 && reg1 != ~0) return &memory[reg1 - 4];
             break;
         case 2:
-            if (reg2 == -1) return &cons[1];
-            if (reg2 >= 0 && reg2 < 4) return &regs[reg2];
-            if (reg2 >= 4) return &memory[reg2 - 4];
+            if (reg2 == ~0) return &cons[1];
+            if (reg2 < 4) return &regs[reg2];
+            if (reg2 >= 4 && reg2 != ~0) return &memory[reg2 - 4];
             break;
         case 3:
-            if (reg3 == -1) return &cons[2];
-            if (reg3 >= 0 && reg1 < 4) return &regs[reg3];
-            if (reg3 >= 4) return &memory[reg3 - 4];
+            if (reg3 == ~0) return &cons[2];
+            if (reg1 < 4) return &regs[reg3];
+            if (reg3 >= 4 && reg2 != ~0) return &memory[reg3 - 4];
             break;
     }
     return 0;
 }
 
 /* evaluate the last decoded instruction */
-void eval(int *running, int *pc)
+void eval(int *running, unsigned *pc)
 {
+    unsigned int pc1;
     switch( instrNum )
     {
-            
+        
         case INERTIA_ADD:
             /* add */
             ( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );
@@ -188,6 +193,18 @@ void eval(int *running, int *pc)
             //printf("returning");
             *running = 0;
             break;
+        case INERTIA_CALL:
+            //run(*get_add(1))
+            
+            pc1 = *get_add(1) ;
+            int running = 1;
+            while( running )
+            {
+                decode( &pc1 );
+                eval( &running , &pc1 );
+            }
+
+            break;
     }
 }
 
@@ -202,8 +219,9 @@ void showRegs()
 }
 
 // run with program counter
-void run(int pc)
+void run()
 {
+    unsigned pc = 0;
     int running = 1;
     while( running )
     {
@@ -214,6 +232,14 @@ void run(int pc)
 
 int main( int argc, const char * argv[] )
 {
-    run(0);
+    /*if (argc == 1) printf("Please enter file name");
+    
+    //read in file
+    f = fopen(strcat(argv[0],".gnf"), "r");
+    
+    fclose(f);
+    */
+    //execute
+    run();
     return 0;
 }
