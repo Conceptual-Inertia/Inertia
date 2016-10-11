@@ -34,31 +34,31 @@
 #define INERTIA_CALL 0xF // call function
 
 
-unsigned int regs[ NUM_REGS ];
-unsigned int memory [ NUM_MEMS ];
+unsigned int32_t regs[ NUM_REGS ];
+unsigned int32_t memory [ NUM_MEMS ];
 
 FILE *f;
-unsigned int len_program;
-unsigned int *program;
-unsigned int cons[3];
+unsigned int32_t len_program;
+unsigned int32_t *program;
+unsigned int32_t cons[3];
 
 /* fetch the next word from the program */
-unsigned int fetch(unsigned int *pc) {
+unsigned int32_t fetch(unsigned int32_t *pc) {
     (*pc) ++;
     //printf("fetch %d\n", *pc - 1);
     return program[*pc - 1];
 }
 
 /* instruction fields */
-unsigned int instrNum = 0;
-unsigned int reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
-unsigned int reg2     = 0;
-unsigned int reg3     = 0;
+unsigned int32_t instrNum = 0;
+unsigned int32_t reg1     = 0;//-1 as const, 0-3 as register, >=4 as memory
+unsigned int32_t reg2     = 0;
+unsigned int32_t reg3     = 0;
 
 /* fetch and decode a word */
-void decode(unsigned int *pc)  {
+void decode(unsigned int32_t *pc)  {
     
-    unsigned int instr = fetch(pc);
+    unsigned int32_t instr = fetch(pc);
     instrNum = instr >> 28;
     //printf("%u", instr >> 28);
     
@@ -112,7 +112,7 @@ void decode(unsigned int *pc)  {
 }
 
 //get memory address
-unsigned int* get_add(int i ){
+unsigned int32_t* get_add(int i ){
     switch(i){
         case 1:
             if (reg1 == ~0) return &cons[0];
@@ -134,9 +134,9 @@ unsigned int* get_add(int i ){
 }
 
 /* evaluate the last decoded instruction */
-void eval(int *running, unsigned int *pc)
+void eval(int *running, unsigned int32_t *pc)
 {
-    unsigned int pc1;
+    unsigned int32_t pc1;
     switch( instrNum )
     {
         
@@ -223,7 +223,7 @@ void showRegs()
 // run with program counter
 void run()
 {
-    unsigned int pc = 0;
+    unsigned int32_t pc = 0;
     int running = 1;
     while( running )
     {
@@ -233,7 +233,7 @@ void run()
 }
 
 //read the char and convert to unsigned
-unsigned int fgetu(){
+uint32_t fgetu(){
     return (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
 }
 
