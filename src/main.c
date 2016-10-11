@@ -155,12 +155,12 @@ void eval(int *running, uint32_t *pc)
             
         case INERTIA_LTN :
             //Less Than
-            if (( *get_add(2) ) < ( *get_add(3) )) ( *get_add(1) ) = ~0;
+            if (( *get_add(2) ) < ( *get_add(3) )) ( *get_add(1) ) = (uint32_t)~0;
             else ( *get_add(1) ) = 0;
             break;
         case INERTIA_EQL :
             //Less Than
-            if (( *get_add(2) ) == ( *get_add(3) )) ( *get_add(1) ) = ~0;
+            if (( *get_add(2) ) == ( *get_add(3) )) ( *get_add(1) ) = (uint32_t)~0;
             else ( *get_add(1) ) = 0;
             break;
         case INERTIA_AND:
@@ -199,11 +199,11 @@ void eval(int *running, uint32_t *pc)
             //run(*get_add(1))
             
             pc1 = *get_add(1) ;
-            int running = 1;
-            while( running )
+            int running1 = 1;
+            while( running1 )
             {
                 decode( &pc1 );
-                eval( &running , &pc1 );
+                eval( &running1 , &pc1 );
             }
 
             break;
