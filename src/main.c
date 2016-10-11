@@ -159,7 +159,7 @@ void eval(int *running, uint32_t *pc)
             else ( *get_add(1) ) = 0;
             break;
         case INERTIA_EQL :
-            //Less Than
+            //Equal to
             if (( *get_add(2) ) == ( *get_add(3) )) ( *get_add(1) ) = (uint32_t)~0;
             else ( *get_add(1) ) = 0;
             break;
@@ -241,9 +241,9 @@ int main( int argc, const char * argv[] )
     
     f = fopen(argv[1], "r");
     len_program = (uint32_t)(fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8) + (fgetc(f));
-    program = (unsigned *)malloc(len_program * sizeof(unsigned));
+    program = (uint32_t *)malloc(len_program * sizeof(unsigned));
     if(!program){
-        printf("Fail to allocate instruction array\n");
+        printf("Failed to allocate instruction array\n");
         exit(1);
     }
     
