@@ -232,7 +232,7 @@ void run()
     }
 }
 
-static inline uint32_t fgetu(){
+inline static uint32_t fgetu(){
     uint32_t a = (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8);
     int b = fgetc(f);
     if (b == EOF){
