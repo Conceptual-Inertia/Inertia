@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define NUM_REGS 4
 
@@ -257,7 +258,11 @@ int main( int argc, const char * argv[] )
     fclose(f);
     
     //execute
+    clock_t start = clock(), diff;
     run(0);
+    diff = clock() - start;
+    printf("Runnig used %lu ns\n",diff * 1000000000 / CLOCKS_PER_SEC);
+    
     free(program);
     return 0;
 }
