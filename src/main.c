@@ -132,6 +132,8 @@ uint32_t* get_add(int i ){
     }
 }
 
+void run(uint32_t pc);
+
 /* evaluate the last decoded instruction */
 void eval(int *running, uint32_t *pc)
 {
@@ -195,17 +197,7 @@ void eval(int *running, uint32_t *pc)
             *running = 0;
             break;
         case INERTIA_CALL:
-            //run(*get_add(1))
-            
-            pc1 = *get_add(1) ;
-            //printf("calling %d", pc1);
-            int running1 = 1;
-            while( running1 )
-            {
-                decode( &pc1 );
-                eval( &running1 , &pc1 );
-            }
-            
+            run(*get_add(1));
             break;
     }
 }
@@ -221,9 +213,8 @@ void showRegs()
 }
 
 // run with program counter
-void run()
+void run(uint32_t pc)
 {
-    uint32_t pc = 0;
     int running = 1;
     while( running )
     {
@@ -232,7 +223,7 @@ void run()
     }
 }
 
-inline static uint32_t fgetu(){
+static inline uint32_t fgetu(){
     uint32_t a = (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8);
     int b = fgetc(f);
     if (b == EOF){
@@ -264,7 +255,7 @@ int main( int argc, const char * argv[] )
     fclose(f);
     
     //execute
-    run();
+    run(0);
     free(program);
     return 0;
 }
