@@ -1,0 +1,14 @@
+load R1 #0
+load R2 #5000
+load @0 #0
+load @1 #1
+P1:
+LTN R0 R1 R2
+IF R0 P2
+ADD @0 @0 @1
+ADD @1 @0 @1 
+ADD R1 R1 #1
+GOTO P1
+P2:
+PRINT @1
+RET
