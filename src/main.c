@@ -249,7 +249,7 @@ int main( int argc, const char * argv[] )
     
     //read in file
     
-    f = fopen(argv[1], "r");
+    f = fopen(argv[1], "rb");
     len_program = fgetu();
     program = (uint32_t *)malloc(len_program * sizeof(unsigned));
     if(!program){
