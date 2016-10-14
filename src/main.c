@@ -43,7 +43,7 @@ uint32_t *program;
 uint32_t cons[3];
 
 /* fetch the next word from the program */
-uint32_t fetch(uint32_t *pc) {
+static inline uint32_t fetch(uint32_t *pc) {
     if (*pc >= len_program) {
         printf("Instruction array out of bound\n");
         exit(2);
@@ -60,7 +60,7 @@ static int32_t par2     = 0;
 static int32_t par3     = 0;
 
 /* fetch and decode a word */
-void decode(uint32_t *pc)  {
+static inline void decode(uint32_t *pc)  {
     
     uint32_t instr = fetch(pc);
     uint32_t instr2 = fetch(pc);
@@ -111,7 +111,7 @@ void decode(uint32_t *pc)  {
 }
 
 //get memory address
-uint32_t* get_add(int i ){
+static inline uint32_t* get_add(int i ){
     int32_t par = i == 1 ? par1 : ( i == 2 ? par2 : par3 );
     switch(par){
         case -1:
@@ -132,11 +132,12 @@ uint32_t* get_add(int i ){
     }
 }
 
-void run(uint32_t pc);
+static inline void run(uint32_t pc);
 
 /* evaluate the last decoded instruction */
-void eval(int *running, uint32_t *pc)
+static inline void eval(int *running, uint32_t *pc)
 {
+    //printf("NUM: %d\n", instrNum);
     switch( instrNum )
     {
             
@@ -195,7 +196,6 @@ void eval(int *running, uint32_t *pc)
             if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );
             break;
         case INERTIA_RETURN:
-            //printf("returning");
             *running = 0;
             break;
         case INERTIA_CALL:
@@ -215,7 +215,7 @@ void showRegs()
 }
 
 // run with program counter
-void run(uint32_t pc)
+static inline void run(uint32_t pc)
 {
     int running = 1;
     while( running )
