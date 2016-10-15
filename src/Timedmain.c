@@ -34,13 +34,17 @@
 #define INERTIA_RETURN 0xE //return
 #define INERTIA_CALL 0xF // call function
 
+typedef struct I_instr_t{
+    uint32_t instr;
+}I_instr_t;
+
 
 uint32_t regs[ NUM_REGS ];
 uint32_t memory [ NUM_MEMS ];
 
 FILE *f;
 uint32_t len_program;
-uint32_t *program;
+I_instr_t *program;
 uint32_t cons[3];
 
 uint32_t fetch(uint32_t *pc) {
@@ -50,7 +54,7 @@ uint32_t fetch(uint32_t *pc) {
     }
     (*pc) ++;
     //printf("fetch %d\n", *pc - 1);
-    return program[*pc - 1];
+    return program[*pc - 1].instr;
 }
 
 /* instruction fields */
@@ -154,7 +158,7 @@ void call(){run(*get_add(1));}
 
 
 /* evaluate the last decoded instruction */
-static inline void eval(int *running, uint32_t *pc)
+void eval(int *running, uint32_t *pc)
 {
     //printf("NUM: %d\n", instrNum);
     switch( instrNum )
@@ -261,14 +265,14 @@ int main( int argc, const char * argv[] )
     
     f = fopen(argv[1], "rb");
     len_program = fgetu();
-    program = (uint32_t *)malloc(len_program * sizeof(unsigned));
+    program = (I_instr_t *)malloc(len_program * sizeof(I_instr_t));
     if(!program){
         printf("Failed to allocate instruction array\n");
         exit(1);
     }
     
     for (int i = 0; i < len_program; i ++){
-        program[i] = fgetu();
+        program[i].instr = fgetu();
     }
     
     fclose(f);
