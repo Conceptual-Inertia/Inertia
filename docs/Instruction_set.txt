@@ -29,12 +29,10 @@
  * shiftr              |           Shift right
  *
  * ============= General Instructions ==============
- * call f()            |           Call procedure f()
+ * call a              |           Call procedure start at a
  * ret                 |           return a value
  *
- * br a
- * brt a               |           Branch to a
- * brf a
+ * if a                |           if statement
  *
  * load i
  *
