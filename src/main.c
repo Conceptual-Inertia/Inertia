@@ -23,8 +23,8 @@
 #define INERTIA_AND 0x5 // Bitwise AND
 #define INERTIA_NOT 0x6 // Bitwise NOT
 #define INERTIA_OR 0x7 //  Bitwise OR
-#define INERTIA_SHIFTL 0x8 //Bitwise SHIFTL
-#define INERTIA_SHIFTR 0x9 //Bitwise SHIFTR
+#define INERTIA_INC 0x8 //Increase by 1
+#define INERTIA_DEC 0x9 //Decrease by 1
 
 #define INERTIA_PRINT 0xA // Print to stdout
 #define INERTIA_LOAD 0xB // Load value
@@ -42,8 +42,7 @@ uint32_t len_program;
 uint32_t *program;
 uint32_t cons[3];
 
-/* fetch the next word from the program */
-static inline uint32_t fetch(uint32_t *pc) {
+uint32_t fetch(uint32_t *pc) {
     if (*pc >= len_program) {
         printf("Instruction array out of bound\n");
         exit(2);
@@ -60,7 +59,7 @@ static int32_t par2     = 0;
 static int32_t par3     = 0;
 
 /* fetch and decode a word */
-static inline void decode(uint32_t *pc)  {
+void decode(uint32_t *pc)  {
     
     uint32_t instr = fetch(pc);
     uint32_t instr2 = fetch(pc);
@@ -111,7 +110,7 @@ static inline void decode(uint32_t *pc)  {
 }
 
 //get memory address
-static inline uint32_t* get_add(int i ){
+uint32_t* get_add(int i ){
     int32_t par = i == 1 ? par1 : ( i == 2 ? par2 : par3 );
     switch(par){
         case -1:
@@ -132,7 +131,26 @@ static inline uint32_t* get_add(int i ){
     }
 }
 
-static inline void run(uint32_t pc);
+void run(uint32_t pc);
+
+void add(){( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );}
+void division(){( *get_add(1) ) = ( *get_add(2) ) / ( *get_add(3) );}
+void mul(){( *get_add(1) ) = ( *get_add(2) ) * ( *get_add(3) );}
+void ltn(){( *get_add(1) ) = ( *get_add(2) ) < ( *get_add(3) )? (uint32_t)~0:0;}
+void eql(){( *get_add(1) ) = ( *get_add(2) ) == ( *get_add(3) ) ? (uint32_t)~0:0;}
+void and(){( *get_add(1) ) = ( *get_add(2) ) & ( *get_add(3) );}
+void or(){( *get_add(1) ) = ( *get_add(2) ) | ( *get_add(3) );}
+void not(){( *get_add(1) ) = ~( *get_add(2) );}
+void inc(){( *get_add(1) ) ++;}
+void dec(){( *get_add(1) ) --;}
+void load(){( *get_add(1) ) = ( *get_add(2) );}
+void print(){printf("%d\n", ( *get_add(1) ));}
+void go_to(uint32_t *pc){*pc = ( *get_add(1) );}
+void IF(uint32_t *pc){if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );}
+void RETURN(int *running){*running = 0;}
+void call(){run(*get_add(1));}
+
+
 
 /* evaluate the last decoded instruction */
 static inline void eval(int *running, uint32_t *pc)
@@ -143,63 +161,61 @@ static inline void eval(int *running, uint32_t *pc)
             
         case INERTIA_ADD:
             /* add */
-            ( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );
+            add();
             break;
         case INERTIA_DIV:
             /* divide */
-            ( *get_add(1) ) = ( *get_add(2) ) / ( *get_add(3) );
+            division();
             break;
         case INERTIA_MUL:
             /* multiply */
-            ( *get_add(1) ) = ( *get_add(2) ) * ( *get_add(3) );
+            mul();
             break;
             
         case INERTIA_LTN :
             //Less Than
-            if (( *get_add(2) ) < ( *get_add(3) )) ( *get_add(1) ) = (uint32_t)~0;
-            else ( *get_add(1) ) = 0;
+            ltn();
             break;
         case INERTIA_EQL :
             //Equal to
-            if (( *get_add(2) ) == ( *get_add(3) )) ( *get_add(1) ) = (uint32_t)~0;
-            else ( *get_add(1) ) = 0;
+            eql();
             break;
         case INERTIA_AND:
-            ( *get_add(1) ) = ( *get_add(2) ) & ( *get_add(3) );
+            and();
             break;
         case INERTIA_OR:
-            ( *get_add(1) ) = ( *get_add(2) ) | ( *get_add(3) );
+            or();
             break;
         case INERTIA_NOT:
-            ( *get_add(1) ) = ~( *get_add(2) );
+            not();
             break;
-        case INERTIA_SHIFTL:
-            ( *get_add(1) ) = ( *get_add(2) ) << ( *get_add(3) );
+        case INERTIA_INC:
+            inc();
             break;
-        case INERTIA_SHIFTR:
-            ( *get_add(1) ) = ( *get_add(2) ) >> ( *get_add(3) );
+        case INERTIA_DEC:
+            dec();
             break;
             
         case INERTIA_LOAD:
-            ( *get_add(1) ) = ( *get_add(2) );
+            load();
             break;
         case INERTIA_PRINT:
-            printf("%d\n", ( *get_add(1) ));
+            print();
             break;
         case INERTIA_GOTO:
-            *pc = ( *get_add(1) );
+            go_to(pc);
             break;
         case INERTIA_IF:
             //printf("%d %d\n", ( *get_add(1) ), ( *get_add(2) ));
             //char w;
             //scanf("%c", &w);
-            if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );
+            IF(pc);
             break;
         case INERTIA_RETURN:
-            *running = 0;
+            RETURN(running);
             break;
         case INERTIA_CALL:
-            run(*get_add(1));
+            call();
             break;
     }
 }
@@ -215,7 +231,7 @@ void showRegs()
 }
 
 // run with program counter
-static inline void run(uint32_t pc)
+void run(uint32_t pc)
 {
     int running = 1;
     while( running )
