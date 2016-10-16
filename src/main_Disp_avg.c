@@ -169,6 +169,10 @@ void call(){run(*get_add(1));}
 void eval(int *running, uint32_t *pc)
 {
     numdisp++;
+    clock_t exp1 = clock();
+    clock_t mexp = clock();
+    clock_t exp2 = clock();
+    clock_t ttstart = clock();
     clock_t start = clock();
     //printf("NUM: %d\n", instrNum);
     switch( instrNum )
@@ -234,7 +238,7 @@ void eval(int *running, uint32_t *pc)
             break;
     }
     clock_t ttemp = clock();
-    tdisp += (ttemp - start);
+    tdisp += ((ttemp - start)-(start-ttstart)-(exp2-exp1));
 }
 
 /* display all registers as 4-digit hexadecimal words */
