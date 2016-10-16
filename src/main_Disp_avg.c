@@ -308,8 +308,8 @@ int main( int argc, const char * argv[] )
     clock_t tdiff = tend-cstart;
     free(program);
     printf("total dispatch %d times\n", numdisp);
-    printf("total dispatch time is %lu µs\n", tdisp);
-    printf("total fetch time is %lu µs\n", tfetch );
-    printf("total time is %lu us\n", tdiff );
+    printf("total dispatch time is %lu µs\n", tdisp * 1000000 / CLOCKS_PER_SEC);
+    printf("total fetch time is %lu µs\n", tfetch * 1000000 / CLOCKS_PER_SEC);
+    printf("total time is %lu us\n", tdiff * 1000000 / CLOCKS_PER_SEC);
     return 0;
 }
