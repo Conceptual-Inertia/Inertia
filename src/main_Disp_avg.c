@@ -291,7 +291,7 @@ int main( int argc, const char * argv[] )
     run(0);
     free(program);
     printf("total dispatch %d times\n", numdisp);
-    printf("total dispatch time is %d µs\n", tdisp * 1000000 / CLOCKS_PER_SEC);
-    printf("total fetch time is %d µs\n", tfetch * 1000000 / CLOCKS_PER_SEC);
+    printf("total dispatch time is %lu µs\n", tdisp * 1000000 / CLOCKS_PER_SEC);
+    printf("total fetch time is %lu µs\n", tfetch * 1000000 / CLOCKS_PER_SEC);
     return 0;
 }
