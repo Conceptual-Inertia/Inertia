@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <time.h>
 
 #define NUM_REGS 4
@@ -53,7 +54,7 @@ I_instr_t *program;
 uint32_t cons[3];
 
 uint32_t fetch(uint32_t *pc) {
-    clock_t start = clock(), diff;
+    clock_t start = clock();
     if (*pc >= len_program) {
         printf("Instruction array out of bound\n");
         exit(2);
@@ -168,7 +169,7 @@ void call(){run(*get_add(1));}
 void eval(int *running, uint32_t *pc)
 {
     numdisp++;
-    clock_t start = clock(), diff;
+    clock_t start = clock();
     //printf("NUM: %d\n", instrNum);
     switch( instrNum )
     {
@@ -232,7 +233,8 @@ void eval(int *running, uint32_t *pc)
             call();
             break;
     }
-    tdisp += clock() - start;
+    clock_t ttemp = clock();
+    tdisp += (ttemp - start);
 }
 
 /* display all registers as 4-digit hexadecimal words */
@@ -288,10 +290,14 @@ int main( int argc, const char * argv[] )
     fclose(f);
     
     //execute
+    clock_t cstart = clock();
     run(0);
+    clock_t tend = clock();
+    clock_t tdiff = tend-cstart;
     free(program);
     printf("total dispatch %d times\n", numdisp);
-    printf("total dispatch time is %lu µs\n", tdisp * 1000000 / CLOCKS_PER_SEC);
-    printf("total fetch time is %lu µs\n", tfetch * 1000000 / CLOCKS_PER_SEC);
+    printf("total dispatch time is %lu µs\n", tdisp);
+    printf("total fetch time is %lu µs\n", tfetch );
+    printf("total time is %lu us\n", tdiff );
     return 0;
 }
