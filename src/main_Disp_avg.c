@@ -34,6 +34,11 @@
 #define INERTIA_RETURN 0xE //return
 #define INERTIA_CALL 0xF // call function
 
+//timing constant
+int numdisp;
+clock_t tdisp;
+clock_t tfetch;
+
 typedef struct I_instr_t{
     uint32_t instr;
 }I_instr_t;
@@ -48,11 +53,13 @@ I_instr_t *program;
 uint32_t cons[3];
 
 uint32_t fetch(uint32_t *pc) {
+    clock_t start = clock(), diff;
     if (*pc >= len_program) {
         printf("Instruction array out of bound\n");
         exit(2);
     }
     (*pc) ++;
+    tfetch += clock() - start;
     //printf("fetch %d\n", *pc - 1);
     return program[*pc - 1].instr;
 }
@@ -132,7 +139,7 @@ uint32_t* get_add(int i ){
             break;
         default:
             return &memory[par - 4];
-            
+        
     }
 }
 
@@ -160,6 +167,8 @@ void call(){run(*get_add(1));}
 /* evaluate the last decoded instruction */
 void eval(int *running, uint32_t *pc)
 {
+    numdisp++;
+    clock_t start = clock(), diff;
     //printf("NUM: %d\n", instrNum);
     switch( instrNum )
     {
@@ -223,6 +232,7 @@ void eval(int *running, uint32_t *pc)
             call();
             break;
     }
+    tdisp += clock() - start;
 }
 
 /* display all registers as 4-digit hexadecimal words */
@@ -278,11 +288,10 @@ int main( int argc, const char * argv[] )
     fclose(f);
     
     //execute
-    clock_t start = clock(), diff;
     run(0);
-    diff = clock() - start;
-    printf("Runnig used %lu µs\n",diff * 1000000 / CLOCKS_PER_SEC);
-    
     free(program);
+    printf("total dispatch %d times\n", numdisp);
+    printf("total dispatch time is %d µs\n", tdisp * 1000000 / CLOCKS_PER_SEC);
+    printf("total fetch time is %d µs\n", tfetch * 1000000 / CLOCKS_PER_SEC);
     return 0;
 }
