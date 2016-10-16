@@ -281,7 +281,7 @@ int main( int argc, const char * argv[] )
     clock_t start = clock(), diff;
     run(0);
     diff = clock() - start;
-    printf("Runnig used %lu µs\n",diff * 1000000 / CLOCKS_PER_SEC);
+    printf("Running used %lu µs\n",diff * 1000000 / CLOCKS_PER_SEC);
     
     free(program);
     return 0;
