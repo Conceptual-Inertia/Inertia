@@ -39,6 +39,8 @@
 int numdisp;
 clock_t tdisp;
 clock_t tfetch;
+clock_t temp_rec;
+int is_recurse;
 
 typedef struct I_instr_t{
     uint32_t instr;
@@ -161,19 +163,23 @@ void print(){printf("%d\n", ( *get_add(1) ));}
 void go_to(uint32_t *pc){*pc = ( *get_add(1) );}
 void IF(uint32_t *pc){if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );}
 void RETURN(int *running){*running = 0;}
-void call(){run(*get_add(1));}
+void call(){
+    
+    is_recurse = 1;
+    clock_t tend = clock();
+    tdisp += (tend - temp_rec);
+    
+    run(*get_add(1));
+}
 
 
 
 /* evaluate the last decoded instruction */
 void eval(int *running, uint32_t *pc)
 {
+   
     numdisp++;
-    clock_t exp1 = clock();
-    clock_t mexp = clock();
-    clock_t exp2 = clock();
-    clock_t ttstart = clock();
-    clock_t start = clock();
+    temp_rec = clock();
     //printf("NUM: %d\n", instrNum);
     switch( instrNum )
     {
@@ -237,8 +243,10 @@ void eval(int *running, uint32_t *pc)
             call();
             break;
     }
-    clock_t ttemp = clock();
-    tdisp += ((ttemp - start)-(start-ttstart)-(exp2-exp1));
+    if(!is_recurse) {
+        clock_t ttemp = clock();
+        tdisp += (ttemp - temp_rec);
+    }
 }
 
 /* display all registers as 4-digit hexadecimal words */
