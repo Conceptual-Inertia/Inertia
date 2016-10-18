@@ -19,17 +19,17 @@
  * #define INERTIA_AND 0x5 // Bitwise AND
  * #define INERTIA_NOT 0x6 // Bitwise NOT
  * #define INERTIA_OR 0x7 //  Bitwise OR
- * #define INERTIA_SHIFTL 0x8 //Bitwise SHIFTL
- * #define INERTIA_SHIFTR 0x9 //Bitwise SHIFTR
+ * #define INERTIA_INC 0x8 //Increase by 1
+ * #define INERTIA_DEC 0x9 //Decrease by 1
  * 
  * #define INERTIA_PRINT 0xA // Print to stdout
  * #define INERTIA_LOAD 0xB // Load value
  * #define INERTIA_GOTO 0xC //goto
- * #define INERTIA_IF 0xD //if reg1 = false, skip to reg2
+ * #define INERTIA_IF 0xD //if par1 == false, skip to par2
  * #define INERTIA_RETURN 0xE //return
  * #define INERTIA_CALL 0xF // call function
  * 
- * //0 as memory, 1 as register, 2 as const
+ * //0 as memory, 1 as register, 2 as const, 3 as pointer at register to memory
  *
  * instruction set as the first 4 bits
  * type of input as following 2 bits, 2*3 = 6 bits
