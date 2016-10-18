@@ -1,6 +1,6 @@
 /*
  * 
- * MOMENT OF INERTIA STANDARD BYTECODE FILE FORMAT - .moi files
+ * GNF NOT FANNGGOVITCH STANDARD BYTECODE FORMAT - .gnf files
  * 
  * Created by Tyler Liu on 2016/09/23.
  * Copyright © 2016 Tyler Liu. All rights reserved.
