@@ -34,13 +34,22 @@
 #define INERTIA_RETURN 0xE //return
 #define INERTIA_CALL 0xF // call function
 
-typedef struct I_instr_t{
+
+typedef struct I_instr_t {
     uint32_t instr;
-}I_instr_t;
+} I_instr_t;
 
+void on_error() {
+    printf("\n\nToo much entropy. \n");
+    exit(130);
+}
 
-uint32_t regs[ NUM_REGS ];
-uint32_t memory [ NUM_MEMS ];
+inline static void foprintf(char *s) {
+    printf("\n%s\n", s);
+}
+
+uint32_t regs[NUM_REGS];
+uint32_t memory[NUM_MEMS];
 
 FILE *f;
 uint32_t len_program;
@@ -52,27 +61,27 @@ uint32_t fetch(uint32_t *pc) {
         printf("Instruction array out of bound\n");
         exit(2);
     }
-    (*pc) ++;
+    (*pc)++;
     //printf("fetch %d\n", *pc - 1);
     return program[*pc - 1].instr;
 }
 
 /* instruction fields */
 static uint32_t instrNum = 0;
-static int32_t par1     = 0;//-1 as const, 0-3 as register, >=4 as memory
-static int32_t par2     = 0;
-static int32_t par3     = 0;
+static int32_t par1 = 0;//-1 as const, 0-3 as register, >=4 as memory
+static int32_t par2 = 0;
+static int32_t par3 = 0;
 
 /* fetch and decode a word */
-void decode(uint32_t *pc)  {
-    
+void decode(uint32_t *pc) {
+
     uint32_t instr = fetch(pc);
     uint32_t instr2 = fetch(pc);
     instrNum = instr >> 28;
     //printf("%u", instr >> 28);
-    
+
     //0 as memory, 1 as register, 2 as const
-    
+
     switch ((instr >> 26) & 3) {//par1
         case 0:
             par1 = (instr & 65535) + 4;
@@ -84,8 +93,11 @@ void decode(uint32_t *pc)  {
             par1 = -1;
             cons[0] = fetch(pc);
             break;
+        default:
+            on_error();
+
     }
-    
+
     switch ((instr >> 24) & 3) {//par2
         case 0:
             par2 = ((instr2 >> 16) & 65535) + 4;
@@ -97,8 +109,10 @@ void decode(uint32_t *pc)  {
             par2 = -2;
             cons[1] = fetch(pc);
             break;
+        default:
+            on_error();
     }
-    
+
     switch ((instr >> 22) & 3) {//par3
         case 0:
             par3 = (instr2 & 65535) + 4;
@@ -110,60 +124,69 @@ void decode(uint32_t *pc)  {
             par3 = -3;
             cons[2] = fetch(pc);
             break;
+        default:
+            on_error();
     }
-    
+
 }
 
 //get memory address
-uint32_t* get_add(int i ){
-    int32_t par = i == 1 ? par1 : ( i == 2 ? par2 : par3 );
-    switch(par){
+uint32_t *get_add(int i) {
+    int32_t par = i == 1 ? par1 : (i == 2 ? par2 : par3);
+    switch (par) {
         case -1:
             return &cons[0];
-            break;
         case -2:
             return &cons[1];
-            break;
         case -3:
             return &cons[2];
-            break;
         case 0 ... 3:
             return &regs[par];
-            break;
         default:
             return &memory[par - 4];
-        
+
     }
 }
 
 void run(uint32_t pc);
 
-void add(){( *get_add(1) ) = ( *get_add(2) ) + ( *get_add(3) );}
-void division(){( *get_add(1) ) = ( *get_add(2) ) / ( *get_add(3) );}
-void mul(){( *get_add(1) ) = ( *get_add(2) ) * ( *get_add(3) );}
-void ltn(){( *get_add(1) ) = ( *get_add(2) ) < ( *get_add(3) )? (uint32_t)~0:0;}
-void eql(){( *get_add(1) ) = ( *get_add(2) ) == ( *get_add(3) ) ? (uint32_t)~0:0;}
-void and(){( *get_add(1) ) = ( *get_add(2) ) & ( *get_add(3) );}
-void or(){( *get_add(1) ) = ( *get_add(2) ) | ( *get_add(3) );}
-void not(){( *get_add(1) ) = ~( *get_add(2) );}
-void inc(){( *get_add(1) ) ++;}
-void dec(){( *get_add(1) ) --;}
-void load(){( *get_add(1) ) = ( *get_add(2) );}
-void print(){printf("%d\n", ( *get_add(1) ));}
-void go_to(uint32_t *pc){*pc = ( *get_add(1) );}
-void IF(uint32_t *pc){if (( *get_add(1) ) == 0) *pc = ( *get_add(2) );}
-void RETURN(int *running){*running = 0;}
-void call(){run(*get_add(1));}
+void add() { (*get_add(1)) = (*get_add(2)) + (*get_add(3)); }
 
+void division() { (*get_add(1)) = (*get_add(2)) / (*get_add(3)); }
+
+void mul() { (*get_add(1)) = (*get_add(2)) * (*get_add(3)); }
+
+void ltn() { (*get_add(1)) = (*get_add(2)) < (*get_add(3)) ? (uint32_t) ~0 : 0; }
+
+void eql() { (*get_add(1)) = (*get_add(2)) == (*get_add(3)) ? (uint32_t) ~0 : 0; }
+
+void and() { (*get_add(1)) = (*get_add(2)) & (*get_add(3)); }
+
+void or() { (*get_add(1)) = (*get_add(2)) | (*get_add(3)); }
+
+void not() { (*get_add(1)) = ~(*get_add(2)); }
+
+void inc() { (*get_add(1))++; }
+
+void dec() { (*get_add(1))--; }
+
+void load() { (*get_add(1)) = (*get_add(2)); }
+
+void print() { printf("%d\n", (*get_add(1))); }
+
+void go_to(uint32_t *pc) { *pc = (*get_add(1)); }
+
+void IF(uint32_t *pc) { if ((*get_add(1)) == 0) *pc = (*get_add(2)); }
+
+void RETURN(int *running) { *running = 0; }
+
+void call() { run(*get_add(1)); }
 
 
 /* evaluate the last decoded instruction */
-void eval(int *running, uint32_t *pc)
-{
+void eval(int *running, uint32_t *pc) {
     //printf("NUM: %d\n", instrNum);
-    switch( instrNum )
-    {
-            
+    switch (instrNum) {
         case INERTIA_ADD:
             /* add */
             add();
@@ -176,7 +199,7 @@ void eval(int *running, uint32_t *pc)
             /* multiply */
             mul();
             break;
-            
+
         case INERTIA_LTN :
             //Less Than
             ltn();
@@ -200,7 +223,7 @@ void eval(int *running, uint32_t *pc)
         case INERTIA_DEC:
             dec();
             break;
-            
+
         case INERTIA_LOAD:
             load();
             break;
@@ -222,61 +245,67 @@ void eval(int *running, uint32_t *pc)
         case INERTIA_CALL:
             call();
             break;
+        default:
+            on_error();
     }
 }
 
 /* display all registers as 4-digit hexadecimal words */
-void showRegs()
-{
+void showRegs() {
     int i;
-    printf( "regs = " );
-    for( i=0; i<NUM_REGS; i++ )
-        printf( "%04X ", regs[ i ] );
-    printf( "\n" );
+    printf("regs = ");
+    for (i = 0; i < NUM_REGS; i++)
+        printf("%04X ", regs[i]);
+    printf("\n");
 }
 
 // run with program counter
-void run(uint32_t pc)
-{
+void run(uint32_t pc) {
     int running = 1;
-    while( running )
-    {
-        decode( &pc );
-        eval( &running , &pc );
+    while (running) {
+        decode(&pc);
+        eval(&running, &pc);
     }
 }
 
-static inline uint32_t fgetu(){
-    uint32_t a = (fgetc(f) << 24) +(fgetc(f) << 16) + (fgetc(f) << 8);
-    int b = fgetc(f);
-    if (b == EOF){
+uint32_t fgetu() {
+    uint32_t a = ((uint32_t)(fgetc(f) << 24) + (fgetc(f) << 16) + (fgetc(f) << 8));
+    int32_t b = fgetc(f);
+    if (b == EOF) {
         printf("Failed to read file\n");
-        exit(3);
+        on_error();
     }
-    return a + (uint32_t) b;
+    return a + (uint32_t)b;
 }
 
-int main( int argc, const char * argv[] )
-{
-    
-    if (argc == 1) printf("Please enter file name");
-    
+int main(int argc, char *argv[]) {
+
+    printf("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-Inertia-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
+
+    if (argc <= 1) {
+        printf("Please enter file name\n");
+        on_error();
+    }
+
     //read in file
-    
+
+
+    printf("Inertia: Reading in file...\n");
     f = fopen(argv[1], "rb");
     len_program = fgetu();
-    program = (I_instr_t *)malloc(len_program * sizeof(I_instr_t));
-    if(!program){
+    program = (I_instr_t *) malloc(len_program * sizeof(I_instr_t));
+
+    if (!program) {
         printf("Failed to allocate instruction array\n");
         exit(1);
     }
-    
-    for (int i = 0; i < len_program; i ++){
+
+    for (int i = 0; i < len_program; i++) {
         program[i].instr = fgetu();
     }
-    
+
     fclose(f);
-    
+
     //execute
     run(0);
     free(program);
