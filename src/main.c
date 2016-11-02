@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-
+#include <time.h>
 #define NUM_REGS 4
 
 #define NUM_MEMS 65536
@@ -278,6 +278,19 @@ uint32_t fgetu() {
     return a + (uint32_t)b;
 }
 
+clock_t clock_t_avg_err() {
+    // calculate error
+    int32_t error_arr;
+    clock_t avg;
+    for(int32_t i = 0; i < 10; i++) {
+        clock_t t_start = clock();
+        clock_t t_end = clock() - t_start();
+        error_arr += t_end;
+    }
+    clock_t std_err = error_arr / 10;
+    return std_err;
+}
+
 int main(int argc, char *argv[]) {
 
     printf("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-Inertia-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
@@ -299,15 +312,33 @@ int main(int argc, char *argv[]) {
         printf("Failed to allocate instruction array\n");
         exit(1);
     }
-
+    clock_t read_program_time;
+    clock_t read_program_time_start = clock();
     for (int i = 0; i < len_program; i++) {
         program[i].instr = fgetu();
     }
 
     fclose(f);
+    read_program_time = clock() - read_program_time_start;
+
+    clock_t err1 = clock_t_avg_err();
+
+    printf("\nParsed file. Time:\t %lu microseconds.\n", read_program_time-(err1*2));
+
+    printf("\nExecuting instructions...\n");
+
+    clock_t execution_time;
+    clock_t execution_time_start = clock();
 
     //execute
     run(0);
     free(program);
+    execution_time = clock() - read_program_time_start;
+
+    clock_t err2 = clock_t_avg_err();
+
+    printf("\nFinished executing instructions. Time: \t %lu microseconds. Bye. \n\n", execution_time-(err2*2));
+
+    // calculate error
     return 0;
 }
