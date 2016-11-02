@@ -1,1 +1,0 @@
-/usr/local/bin/x86_64-apple-darwin15.6.0-gcc-6   -O0 -std=c11 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/Inertia.dir/src/main.c.o  -o Inertia  
