@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+
 #define NUM_REGS 4
 
 #define NUM_MEMS 65536
@@ -269,20 +270,20 @@ void run(uint32_t pc) {
 }
 
 uint32_t fgetu() {
-    uint32_t a = ((uint32_t)(fgetc(f) << 24) + (fgetc(f) << 16) + (fgetc(f) << 8));
+    uint32_t a = ((uint32_t) (fgetc(f) << 24) + (fgetc(f) << 16) + (fgetc(f) << 8));
     int32_t b = fgetc(f);
     if (b == EOF) {
         printf("Failed to read file\n");
         on_error();
     }
-    return a + (uint32_t)b;
+    return a + (uint32_t) b;
 }
 
 clock_t clock_t_avg_err() {
     // calculate error
     clock_t error_arr;
     clock_t avg;
-    for(int32_t i = 0; i < 3; i++) {
+    for (int32_t i = 0; i < 3; i++) {
         clock_t t_start = clock();
         clock_t t_end = clock() - t_start;
         error_arr += t_end;
@@ -323,7 +324,7 @@ int main(int argc, char *argv[]) {
 
     clock_t err1 = clock_t_avg_err();
 
-    printf("\nParsed file. Time:\t %lu microseconds.\n", read_program_time-(err1*2));
+    printf("\nParsed file. Time:\t %lu microseconds.\n", (read_program_time - (err1 * 2)) * 1000000 / CLOCKS_PER_SEC);
 
     printf("\nExecuting instructions...\n");
 
@@ -337,7 +338,8 @@ int main(int argc, char *argv[]) {
 
     clock_t err2 = clock_t_avg_err();
 
-    printf("\nFinished executing instructions. Time: \t %lu microseconds. Bye. \n\n", execution_time-(err2*2));
+    printf("\nFinished executing instructions. Time: \t %lu microseconds. Bye. \n\n",
+           (execution_time - (err2 * 2)) * 1000000 / CLOCKS_PER_SEC);
 
     // calculate error
     return 0;
