@@ -280,14 +280,14 @@ uint32_t fgetu() {
 
 clock_t clock_t_avg_err() {
     // calculate error
-    int32_t error_arr;
+    clock_t error_arr;
     clock_t avg;
-    for(int32_t i = 0; i < 10; i++) {
+    for(int32_t i = 0; i < 3; i++) {
         clock_t t_start = clock();
-        clock_t t_end = clock() - t_start();
+        clock_t t_end = clock() - t_start;
         error_arr += t_end;
     }
-    clock_t std_err = error_arr / 10;
+    clock_t std_err = error_arr / 3;
     return std_err;
 }
 
